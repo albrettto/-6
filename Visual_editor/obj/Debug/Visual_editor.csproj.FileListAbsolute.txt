@@ -1,0 +1,10 @@
+C:\Users\User\OneDrive\Рабочий стол\УНИВЕР\2 КУРС\3 СЕМЕСТР\ООП\Лабораторная работа 6\Visual_editor\bin\Debug\Visual_editor.exe.config
+C:\Users\User\OneDrive\Рабочий стол\УНИВЕР\2 КУРС\3 СЕМЕСТР\ООП\Лабораторная работа 6\Visual_editor\bin\Debug\Visual_editor.exe
+C:\Users\User\OneDrive\Рабочий стол\УНИВЕР\2 КУРС\3 СЕМЕСТР\ООП\Лабораторная работа 6\Visual_editor\bin\Debug\Visual_editor.pdb
+C:\Users\User\OneDrive\Рабочий стол\УНИВЕР\2 КУРС\3 СЕМЕСТР\ООП\Лабораторная работа 6\Visual_editor\obj\Debug\Visual_editor.csprojAssemblyReference.cache
+C:\Users\User\OneDrive\Рабочий стол\УНИВЕР\2 КУРС\3 СЕМЕСТР\ООП\Лабораторная работа 6\Visual_editor\obj\Debug\Visual_editor.Form1.resources
+C:\Users\User\OneDrive\Рабочий стол\УНИВЕР\2 КУРС\3 СЕМЕСТР\ООП\Лабораторная работа 6\Visual_editor\obj\Debug\Visual_editor.Properties.Resources.resources
+C:\Users\User\OneDrive\Рабочий стол\УНИВЕР\2 КУРС\3 СЕМЕСТР\ООП\Лабораторная работа 6\Visual_editor\obj\Debug\Visual_editor.csproj.GenerateResource.cache
+C:\Users\User\OneDrive\Рабочий стол\УНИВЕР\2 КУРС\3 СЕМЕСТР\ООП\Лабораторная работа 6\Visual_editor\obj\Debug\Visual_editor.csproj.CoreCompileInputs.cache
+C:\Users\User\OneDrive\Рабочий стол\УНИВЕР\2 КУРС\3 СЕМЕСТР\ООП\Лабораторная работа 6\Visual_editor\obj\Debug\Visual_editor.exe
+C:\Users\User\OneDrive\Рабочий стол\УНИВЕР\2 КУРС\3 СЕМЕСТР\ООП\Лабораторная работа 6\Visual_editor\obj\Debug\Visual_editor.pdb
