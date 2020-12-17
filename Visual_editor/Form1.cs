@@ -12,12 +12,12 @@ namespace Visual_editor
 {
     public partial class Form1 : Form
     {
-        //MVC model;
+        MVC model;
         public Form1()
         {
             InitializeComponent();
-            //model = new MVC();
-            //model.observers += new System.EventHandler(this.updateFromMVC);
+            model = new MVC();
+            model.observers += new System.EventHandler(this.updateFromMVC);
         }
         class Shape
         {
@@ -61,6 +61,7 @@ namespace Visual_editor
         class Triangle: Shape
         {
             public int x1, y1, x2, y2, x3, y3;
+            public int st_move = 60;
             public Triangle() // Конструктор по умолчанию
             {
                 x1 = 0; y1 = 0;
@@ -77,6 +78,7 @@ namespace Visual_editor
         class Square: Shape
         {
             public int x1, y1, x2, y2, x3, y3, x4, y4;
+            public int st_move = 60;
             public Square() // Конструктор по умолчанию
             {
                 x1 = 0; y1 = 0;
@@ -156,31 +158,29 @@ namespace Visual_editor
             }
             ~Storage() { }
         };
-        //public class MVC
-        //{
-        //    private Color color;
-        //    private string name_color;
-        //    public System.EventHandler observers;
-        //    public void setColor(Color color, string name_color)
-        //    {
-        //        this.color = color;
-        //        this.name_color = name_color;
-        //        observers.Invoke(this, null);
-        //    }
-        //    public Color getColor()
-        //    {
-        //        return color;
-        //    }
-        //    public string getNameColor()
-        //    {
-        //        return name_color;
-        //    }
-        //}
+        
+        public class MVC
+        {
+            private string figure;
+            public System.EventHandler observers;
+            public void setFigure(string figure)
+            {
+                
+                this.figure = figure;
+                observers.Invoke(this, null);
+            }
+            public string getFigure()
+            {
+                return figure;
+            }
+        }
 
         int is_free(ref Storage storage,int X, int Y)//Проверка на "свободность" места на полотне
         {
-            for (int i = 0; i < storage.Occupied(count_cells); ++i)
+            for (int i = 0; i < count_cells; ++i)
             {//Проходимся по всему хранилищу
+                if (storage.Is_empty(i))
+                    continue;
                 if ((storage.objects[i] as Circle) != null)//Если это круг
                 {
                     Circle c = storage.objects[i] as Circle;
@@ -207,8 +207,8 @@ namespace Visual_editor
         }
         void draw_figure(Shape _object)
         {
-            if (_object.IsSelected())
-                pen.Color = selected_color;
+            if (_object == null)
+                return;
             else
                 pen.Color = _object.GetColor();
             if((_object as Circle) != null)
@@ -216,45 +216,58 @@ namespace Visual_editor
                 Circle c = _object as Circle;
                 Canvas_Panel.CreateGraphics().DrawEllipse(pen,
                                               c.x,
-                                              c.y,
+                                              c.y ,
                                               c.move,
+                                              c.move);
+                if (_object.IsSelected())
+                    Canvas_Panel.CreateGraphics().FillEllipse(solidBrush, 
+                                              c.x,
+                                              c.y,
+                                              c.move ,
                                               c.move);
             }
             if((_object as Triangle) != null)
             {
                 Triangle t = _object as Triangle;
-                points[0].X = t.x1; points[0].Y = t.y1;
-                points[1].X = t.x2; points[1].Y = t.y2;
-                points[2].X = t.x3; points[2].Y = t.y3;
+                int dif = t.move - t.st_move;
+                points[0].X = t.x1; points[0].Y = t.y1 - dif;
+                points[1].X = t.x2 - dif; points[1].Y = t.y2 + dif;
+                points[2].X = t.x3 + dif; points[2].Y = t.y3 + dif;
                 Canvas_Panel.CreateGraphics().DrawPolygon(pen, points);
+                if (_object.IsSelected())
+                    Canvas_Panel.CreateGraphics().FillPolygon(solidBrush, points);
             }
             if ((_object as Square) != null)
             {
                 Square s = _object as Square;
                 Canvas_Panel.CreateGraphics().DrawRectangle(pen, s.x4, s.y4, s.move, s.move);
+                if (_object.IsSelected())
+                    Canvas_Panel.CreateGraphics().FillRectangle(solidBrush, s.x4, s.y4, s.move, s.move);
             }
         }
         void deselect(ref Storage storage)
         {
-            for (int i = 0; i < count_elements; ++i)
-                if (storage.objects[i].IsSelected())
-                    storage.objects[i].Select(false);
+            for (int i = 0; i < count_cells; ++i)
+                if(!storage.Is_empty(i))
+                    if (storage.objects[i].IsSelected())
+                        storage.objects[i].Select(false);
         }
 
-        string figure_now = "Круг";
+        string figure_now;
         static int count_cells = 5; // Кол-во ячеек в хранилище
         int indexin = 0; // Индекс, в какое место был помещён круг
         int count_elements = 0;
-        int now_position = 0;
         Storage storage = new Storage(count_cells);
         Point[] points = new Point[3];
         static Color default_color = Color.Black;
         static Color selected_color = Color.Cyan;
         Pen pen = new Pen(default_color, 3);
         Shape shape = new Shape();
+        SolidBrush solidBrush = new SolidBrush(Color.LightGray);
+
+        
         private void Canvas_Panel_MouseDown(object sender, MouseEventArgs e)
         {
-            Canvas_Panel.Focus();
             int ind = is_free(ref storage, e.X, e.Y);
             if (e.Button == MouseButtons.Left)
             {
@@ -305,38 +318,33 @@ namespace Visual_editor
             }
             
         }
-        //public void updateFromMVC(object sender, EventArgs e)
-        //{
-        //    pen.Color = model.getColor();
-        //    Color back_color = Color.Transparent;
-        //    Color selected_back_color = Color.LightPink;
-        //    Red_toolStripButton.BackColor = back_color;
-        //    Green_toolStripButton.BackColor = back_color;
-        //    Blue_toolStripButton.BackColor = back_color;
-        //    switch(model.getNameColor())
-        //    {
-        //        case "Красный":
-        //            Red_toolStripButton.BackColor = selected_back_color;
-        //            break;
-        //        case "Зеленый":
-        //            Green_toolStripButton.BackColor = selected_back_color;
-        //            break;
-        //        case "Синий":
-        //            Blue_toolStripButton.BackColor = selected_back_color;
-        //            break;
-        //    }
-        //}
+
+        public void updateFromMVC(object sender, EventArgs e)
+        {
+            Color back_color = Color.Transparent;
+            Color selected_back_color = Color.LightPink;
+            Circle_ToolStripButton.BackColor = back_color;
+            Triangle_ToolStripButton.BackColor = back_color;
+            Square_ToolStripButton.BackColor = back_color;
+            switch (model.getFigure())
+            {
+                case "Круг":
+                    Circle_ToolStripButton.BackColor = selected_back_color;
+                    break;
+                case "Треугольник":
+                    Triangle_ToolStripButton.BackColor = selected_back_color;
+                    break;
+                case "Квадрат":
+                    Square_ToolStripButton.BackColor = selected_back_color;
+                    break;
+            }
+        }
 
         private void Redrawing_figures(ref Storage storage)
         {
             Canvas_Panel.Refresh();
-            for (int i = 0; i < storage.Occupied(count_cells); ++i)
+            for (int i = 0; i < count_cells; ++i)
                 draw_figure(storage.objects[i]);
-        }
-        private void Figure_toolStripComboBox_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            figure_now = Figure_toolStripComboBox.SelectedItem.ToString();
-            
         }
         private void Clear_toolStripButton_Click(object sender, EventArgs e)
         {
@@ -351,11 +359,8 @@ namespace Visual_editor
                 if (storage.objects[i].IsSelected())
                 {
                     storage.objects[i].SetColor(Color.Red);
-                    //storage.objects[i].Select(false);
                     Redrawing_figures(ref storage);
-                    //storage.objects[i].Select(true);
                 }
-            //model.setColor(Color.Red, "Красный");
         }
 
         private void Green_toolStripButton_Click(object sender, EventArgs e)
@@ -364,11 +369,8 @@ namespace Visual_editor
                 if (storage.objects[i].IsSelected())
                 {
                     storage.objects[i].SetColor(Color.Green);
-                    //storage.objects[i].Select(false);
                     Redrawing_figures(ref storage);
-                    //storage.objects[i].Select(true);
                 }
-            //model.setColor(Color.Green, "Зеленый");
         }
 
         private void Blue_toolStripButton_Click(object sender, EventArgs e)
@@ -377,33 +379,175 @@ namespace Visual_editor
                 if (storage.objects[i].IsSelected())
                 {
                     storage.objects[i].SetColor(Color.Blue);
-                    storage.objects[i].Select(false);
                     Redrawing_figures(ref storage);
-                    //storage.objects[i].Select(true);
                 }
-            //model.setColor(Color.Blue, "Синий");
         }
 
         private void Form1_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.KeyCode == Keys.Delete)
             {
-                for (int i = 0; i < count_elements; ++i)
-                    if (storage.objects[i].IsSelected())
-                        storage.Delete_object(ref i);
+                for (int i = 0; i < count_cells; ++i)
+                    if (!storage.Is_empty(i))
+                        if (storage.objects[i].IsSelected())
+                        {
+                            storage.Delete_object(ref i);
+                            count_elements--;
+                        }
                 Redrawing_figures(ref storage);
+            }
+            if (e.KeyCode == Keys.Add)
+                Plus_toolStripButton_Click(sender,e);
+            if(e.KeyCode == Keys.Subtract)
+                Minus_toolStripButton_Click(sender, e);
+            switch (e.KeyCode)
+            {
+                case Keys.Up:
+                    move_y(-5);
+                    Redrawing_figures(ref storage);
+                    break;
+                case Keys.Down:
+                    move_y(5);
+                    Redrawing_figures(ref storage);
+                    break;
+                case Keys.Right:
+                    move_x(5);
+                    Redrawing_figures(ref storage);
+                    break;
+                case Keys.Left:
+                    move_x(-5);
+                    Redrawing_figures(ref storage);
+                    break;
             }
         }
 
-        private void Form1_KeyUp(object sender, KeyEventArgs e)
+        void move_x(int move)
         {
-            if (e.KeyCode == Keys.Delete)
-            {
-                for (int i = 0; i < count_elements; ++i)
+            for (int i = 0; i < count_cells; ++i)
+                if (!storage.Is_empty(i))
                     if (storage.objects[i].IsSelected())
-                        storage.Delete_object(ref i);
-                Redrawing_figures(ref storage);
-            }
+                    {
+                        if ((storage.objects[i] as Circle) != null)
+                        {
+                            Circle c = storage.objects[i] as Circle;
+                            c.x += move;
+                            if (!can_go(c.x + c.move, c.y) || !can_go(c.x , c.y))
+                                c.x -= move;
+                        }
+                        if ((storage.objects[i] as Triangle) != null)
+                        {
+                            Triangle t = storage.objects[i] as Triangle;
+                            t.x1 += move;
+                            t.x2 += move;
+                            t.x3 += move;
+                            if (!can_go(t.x2 - (t.move - t.st_move), t.y2) || !can_go(t.x3 + (t.move - t.st_move), t.y3))
+                            {
+                                t.x1 -= move;
+                                t.x2 -= move;
+                                t.x3 -= move;
+                            }
+                        }
+                        if ((storage.objects[i] as Square) != null)
+                        {
+                            Square s = storage.objects[i] as Square;
+                            s.x1 += move;
+                            s.x2 += move;
+                            s.x3 += move;
+                            s.x4 += move;
+                            if (!can_go(s.x1, s.y1) || !can_go(s.x2 + (s.move - s.st_move), s.y2))
+                            {
+                                s.x1 -= move;
+                                s.x2 -= move;
+                                s.x3 -= move;
+                                s.x4 -= move;
+                            }
+                        }
+                    }
+        }
+        void move_y(int move)
+        {
+            for (int i = 0; i < count_cells; ++i)
+                if (!storage.Is_empty(i))
+                    if (storage.objects[i].IsSelected())
+                    {
+                        if ((storage.objects[i] as Circle) != null)
+                        {
+                            Circle c = storage.objects[i] as Circle;
+                            c.y += move;
+                            if (!can_go(c.x, c.y + c.move) || !can_go(c.x, c.y ))
+                                c.y -= move;
+                        }
+                        if ((storage.objects[i] as Triangle) != null)
+                        {
+                            Triangle t = storage.objects[i] as Triangle;
+                            t.y1 += move;
+                            t.y2 += move;
+                            t.y3 += move;
+                            if (!can_go(t.x1, t.y1 - (t.move-t.st_move)) || !can_go(t.x3, t.y3 + (t.move - t.st_move)))
+                            {
+                                t.y1 -= move;
+                                t.y2 -= move;
+                                t.y3 -= move;
+                            }
+                        }
+                        if ((storage.objects[i] as Square) != null)
+                        {
+                            Square s = storage.objects[i] as Square;
+                            s.y1 += move;
+                            s.y2 += move;
+                            s.y3 += move;
+                            s.y4 += move;
+                            if (!can_go(s.x1, s.y1 + (s.move - s.st_move)) || !can_go(s.x3, s.y3))
+                            {
+                                s.y1 -= move;
+                                s.y2 -= move;
+                                s.y3 -= move;
+                                s.y4 -= move;
+                            }
+                        }
+                    }
+        }
+
+        bool can_go(int X, int Y)
+        {
+            if (X < 0 || X > Canvas_Panel.Width || Y < 0 || Y > Canvas_Panel.Height)
+                return false;
+            return true;
+        }
+        private void Circle_ToolStripButton_Click(object sender, EventArgs e)
+        {
+            figure_now = "Круг";
+            model.setFigure(figure_now);
+        }
+
+        private void Triangle_ToolStripButton_Click(object sender, EventArgs e)
+        {
+            figure_now = "Треугольник";
+            model.setFigure(figure_now);
+        }
+
+        private void Square_ToolStripButton_Click(object sender, EventArgs e)
+        {
+            figure_now = "Квадрат";
+            model.setFigure(figure_now);
+        }
+
+        private void Plus_toolStripButton_Click(object sender, EventArgs e)
+        {
+            for (int i = 0; i < count_cells; ++i)
+                if (!storage.Is_empty(i))
+                    if (storage.objects[i].IsSelected())
+                        storage.objects[i].move += 5;
+            Redrawing_figures(ref storage);
+        }
+
+        private void Minus_toolStripButton_Click(object sender, EventArgs e)
+        {
+            for (int i = 0; i < count_cells; ++i)
+                if (!storage.Is_empty(i))
+                    if (storage.objects[i].IsSelected())
+                        storage.objects[i].move -= 5;
+            Redrawing_figures(ref storage);
         }
     }
 }
